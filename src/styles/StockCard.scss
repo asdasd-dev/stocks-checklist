@@ -1,0 +1,16 @@
+.StockCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+    padding: 10px;
+    height: 80px;
+
+    & > div {
+        display: inline-block;
+    }
+
+    &:nth-child(2n) {
+        background: lightgrey;
+    }
+}

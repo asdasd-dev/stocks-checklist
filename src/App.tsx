@@ -1,56 +1,60 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React, { useState } from 'react';
+import { SearchInput } from './components/SearchInput';
+import { Logo } from './components/Logo';
+import { CategoriesList } from './components/CategoriesList';
+import { StocksList } from './components/StocksList';
+
+import './App.scss';
+
+let initialCategories = {
+  'favorites': [
+    'AAPL',
+    'TSLA',
+    'AMZN',
+    'NFLX',
+    'FB'
+  ]
+}
+
+const apiKey = 'sandbox_bup9l3f48v6sjkjisljg';
 
 function App() {
+
+  const [categoriesDataList, setCategoriesDataList] = useState<{[categoryName: string]: string[]}>(initialCategories);  
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>('favorites');
+
+  const onAddCategory = (categoryName: string) => {
+    if (!categoriesDataList[categoryName])
+      setCategoriesDataList({
+        ...categoriesDataList,
+        [categoryName]: []
+      })
+  }
+
+  const onAddStock = (ticker: string) => {
+    if(!categoriesDataList[selectedCategoryName].includes(ticker)) {
+      setCategoriesDataList({
+        ...categoriesDataList,
+        [selectedCategoryName]: [...categoriesDataList[selectedCategoryName], ticker]
+      })
+    }
+  }
+
+  const onSelectCategory = (category: string) => {
+    setSelectedCategoryName(category);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+        <Logo />
+        <SearchInput api={apiKey} onAddStock={onAddStock}/>
+        <CategoriesList 
+          onAddCategory={onAddCategory} 
+          categories={Object.keys(categoriesDataList)}
+          onSelectCategory={onSelectCategory}/>
+        <StocksList 
+          stocks={categoriesDataList[selectedCategoryName]}
+          api={apiKey}/>
     </div>
   );
 }
