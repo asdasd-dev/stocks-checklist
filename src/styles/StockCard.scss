@@ -11,9 +11,20 @@
     background-color: $stock-card-color;
     border-radius: 10px;
 
-    & > div {
-        flex: 1;
-        display: inline-block;
+    & > * {
+        margin: 10px;
+    }
+
+    .big-ticker {
+        flex: 1
+    }
+
+    .full-stock-name {
+        flex: 3
+    }
+
+    .stock-price {
+        flex: 2
     }
 
     &:hover {

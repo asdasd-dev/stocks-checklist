@@ -1,21 +1,16 @@
+import { CircularProgress } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 import { fetchSupportedStocksList } from '../App';
+import { useSupportedStocks } from '../hooks/useSupportedStocks';
+import { supportedStockData } from '../hooks/useSupportedStocks'
 import '../styles/SearchInput.scss'
 
  interface SearchInputProps {
     onAddStock: (ticker: string) => void
  }
 
- interface StockData {
-         description: string ,
-         displaySymbol: string,
-         symbol: string,
-         type: string,
-         currency: string
- }
-
- function* generateStocksMatches(stocksList: StockData[], regexp: RegExp) {
+ function* generateStocksMatches(stocksList: supportedStockData[], regexp: RegExp) {
      for (let i = 0; i < stocksList.length; i++) {
          if (regexp.test(stocksList[i].symbol)) {
              yield stocksList[i];
@@ -25,49 +20,37 @@ import '../styles/SearchInput.scss'
 
 export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
 
-    const [searchValue, setSearchValue] = useState('');
-    const [stocksList, setStocksList] = useState([]);
-    const [isStocksLoaded, setIsStocksLoaded] = useState(false);
-    const [isFocused, setIsFocused] = useState(false);
-    const [foundStocks, setFoundStocks] = useState<StockData[]>([]);
-    const [blurTimeout, setBlurTimeout] = useState<NodeJS.Timeout | null>(null);
+    const history = useHistory();
 
     const searchInput = useRef<HTMLInputElement>(null);
     const foundStocksDiv = useRef<HTMLDivElement>(null);
 
-    const history = useHistory();
+    const [searchValue, setSearchValue] = useState('');
+
+    const { isLoaded: isSupportedStocksLoaded, supportedStocks } = useSupportedStocks();
+
+    const [isFocused, setIsFocused] = useState(false);
+    const [searchResults, setSearchResults] = useState<supportedStockData[]>([]);
 
     useEffect(() => {
-        if (isStocksLoaded && searchValue != '') {
-            let matchGenerator = generateStocksMatches(stocksList, new RegExp(`^${searchValue}`, 'i'))
-            let matchesArray: StockData[] = [];
-            for(let i = 0; i < 5; i++) {
-                let result = matchGenerator.next();
-                if (result.done) {
+        console.log('effect when isLoaded = ', isSupportedStocksLoaded, 'and searchValue = ', searchValue);
+        if (isSupportedStocksLoaded && searchValue != '') {
+            let matchGenerator = generateStocksMatches(supportedStocks, new RegExp(`^${searchValue}`, 'i'))
+            let matchesArray = [];
+            while (matchesArray.length < 5) {
+                let nextValue = matchGenerator.next();
+                if (nextValue.done)
                     break;
-                }
-                matchesArray.push(result.value);
+                matchesArray.push(nextValue.value);
             }
-            setFoundStocks(matchesArray);
+            setSearchResults(matchesArray as supportedStockData[]);
         }
-    }, [searchValue, isStocksLoaded, isFocused])
+    }, [searchValue, isSupportedStocksLoaded])
 
-    const fetchStocks = () => {
-        if(!isStocksLoaded) {
-            fetchSupportedStocksList()
-                .then(result => {
-                    setStocksList(result);
-                    setIsStocksLoaded(true)
-                })
-        }
-    }
-
+    
     const inputRect = searchInput.current?.getBoundingClientRect();
-    const foundStocksRect = foundStocksDiv.current?.getBoundingClientRect()
-
     const foundStocksStyle: React.CSSProperties = {
-        top: inputRect?.bottom as number + 3,
-        left: (foundStocksRect?.width as number - (inputRect?.width  as number)) / 2
+        top: inputRect?.bottom as number + 3
     }
 
 
@@ -77,21 +60,16 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
                 type="text" 
                 ref={searchInput}
                 onFocus={e => {
-                    if (blurTimeout) {
-                        clearTimeout(blurTimeout);
-                        setBlurTimeout(null);
-                    }
-                    fetchStocks();
                     setIsFocused(true);
                 }} 
                 onBlur={e => {
-                    setBlurTimeout(setTimeout(() => setIsFocused(false), 300));
+                    setTimeout(() => setIsFocused(false), 300);
                 }}
                 value={searchValue} 
                 onChange={e => setSearchValue(e.target.value)}/>
-            {isFocused && foundStocks.length > 0 ?
+            {isFocused && searchResults.length > 0 ?
                 <div className="found-stocks" style={foundStocksStyle}>
-                    {foundStocks.map(stock => (
+                    {searchResults.map(stock => (
                         <div 
                             key={stock.symbol} 
                             onClick={e => {

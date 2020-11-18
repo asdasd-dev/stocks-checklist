@@ -1,6 +1,8 @@
+import { CircularProgress } from '@material-ui/core';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchStockPrices, fetchStockProfile } from '../App';
+import { useStockData } from '../hooks/useStockData';
 
 import '../styles/StockFundamentals.scss'
 import { StockPriceChange } from './StockPriceChange';
@@ -9,26 +11,14 @@ export const StockFundamentals: React.FC = () => {
 
     const params = useParams<{ ticker: string }>();
     
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
-    const [stockProfile, setStockProfile] = useState<{ [propName: string]: string }>({});
-    const [stockPrices, setStockPrices] = useState<{ [propName: string]: number }>({})
-
-    useEffect(() => {
-        Promise.all([fetchStockProfile(params.ticker), fetchStockPrices(params.ticker)])
-            .then(
-                results => {
-                    setIsLoaded(true);
-                    setStockProfile(results[0]);
-                    setStockPrices(results[1])},
-                error => {
-                    setError(error)
-                })
-    }, [params.ticker])
-
+    const { isLoaded, stockProfile, stockPrices, error } = useStockData(params.ticker, [params]);
 
     if (!isLoaded) {
-        return <p>Loading...</p>
+        return (
+            <div>
+                <CircularProgress />
+            </div>
+        )
     }
 
     if (error) {
