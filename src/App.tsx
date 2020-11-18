@@ -28,7 +28,7 @@ function App() {
   const params = useParams();
 
   const onAddCategory = (categoryName: string) => {
-    if (!categoriesDataList[categoryName])
+    if (categoryName !== '' && !categoriesDataList[categoryName])
       setCategoriesDataList({
         ...categoriesDataList,
         [categoryName]: []
@@ -58,26 +58,31 @@ function App() {
 
   return (
     <div className="App">
+      <div className="grid">
         <Logo />
         <SearchInput 
-          api={apiKey} 
           onAddStock={onAddStock}/>
-        <CategoriesList 
-          onAddCategory={onAddCategory} 
-          categories={Object.keys(categoriesDataList)}
-          onSelectCategory={onSelectCategory}/>
-        <Switch>
-          <Route path='/categories/:categoryName'>
-            <StocksList 
-              categoriesData={categoriesDataList}
-              onRemoveStock={onRemoveStock}
-              api={apiKey}/>
-          </Route>
-          <Route path='/stock/:ticker'>
-            <StockFundamentals />
-          </Route>
-          <Redirect to='/categories/favorites' />
-        </Switch>
+        <div className="scrollable-container">
+          <CategoriesList 
+            onAddCategory={onAddCategory} 
+            categories={Object.keys(categoriesDataList)}
+            onSelectCategory={onSelectCategory}
+            selectedCategory={selectedCategoryName}/>
+        </div>
+        <div className="scrollable-container background-secondary">
+          <Switch>
+            <Route path='/categories/:categoryName'>
+              <StocksList 
+                categoriesData={categoriesDataList}
+                onRemoveStock={onRemoveStock}/>
+            </Route>
+            <Route path='/stock/:ticker'>
+              <StockFundamentals />
+            </Route>
+            <Redirect to='/categories/favorites' />
+          </Switch>
+        </div>
+      </div>
     </div>
   );
 }

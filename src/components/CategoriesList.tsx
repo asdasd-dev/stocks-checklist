@@ -1,19 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useHistory, useParams } from 'react-router-dom'
 import '../styles/CategoriesList.scss'
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 
 interface CategoriesListProps {
     categories: string[],
     onAddCategory: (categoryName: string) => void,
-    onSelectCategory: (category: string) => void
+    onSelectCategory: (category: string) => void,
+    selectedCategory: string
 }
 
-export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAddCategory, onSelectCategory }) => {
+export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAddCategory, onSelectCategory, selectedCategory }) => {
 
     const [isAddingCategory, setIsAddingCategory] = useState(false);
     const [newCategoryInputValue, setNewCategoryInputValue] = useState('');
 
     const newCategoryInput = useRef<HTMLInputElement>(null);
+
+    const history = useHistory();
+    const params = useParams<{categoryName: string}>();
 
     useEffect(() => {
         if (isAddingCategory && newCategoryInput && newCategoryInput.current) {
@@ -25,9 +30,11 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
         setIsAddingCategory(!isAddingCategory);
     } 
 
+    console.log(selectedCategory)
+
     return (
         <div className='CategoriesList'>
-            <div>Categories 
+            <div className='category-header'>Categories 
                 <button 
                     disabled={isAddingCategory} 
                     className='add-category-btn' 
@@ -35,19 +42,22 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
                     +
                 </button>
             </div>
-            <ul>
-                {categories.map(
-                    categoryName => 
-                    <li key={categoryName}>
-                        <Link 
-                            to={`/categories/${categoryName}`}
-                            onClick={e => {
+            {categories.map(
+                categoryName => 
+                    <div 
+                        className="category-item" 
+                        key={categoryName}
+                        style={categoryName === selectedCategory ? {backgroundColor: 'rgba(0, 0, 0, .25)'} : {}}
+                        onClick={
+                            e => {
                                 onSelectCategory(categoryName);
-                            }}>
-                            {categoryName}
-                        </Link>
-                    </li>)}
-            </ul>
+                                history.push(`/categories/${categoryName}`)
+                            }
+                        }>
+                            <FolderOpenIcon /> 
+                            <span> {categoryName}</span>
+                    </div>
+            )}
             { isAddingCategory && <div className=''>
                     <input 
                         onChange={e => setNewCategoryInputValue(e.target.value)} 

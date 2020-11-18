@@ -1,6 +1,4 @@
 .CategoriesList {
-    padding: 10px;
-    background: chartreuse;
 
     .add-category-btn {
         float: right;
@@ -8,6 +6,22 @@
 
     ul {
         list-style-type: none;
+    }
+
+    .category-header {
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+
+    .category-item {
+        padding: 20px;
+        &:hover {
+            cursor: pointer;
+            opacity: .5;
+        }
+        & > * {
+            vertical-align: middle;
+        }
     }
 
 }

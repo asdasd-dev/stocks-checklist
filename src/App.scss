@@ -1,4 +1,23 @@
+@import './styles/variables';
+
 .App {
-  display: grid;
-  grid-template-columns: 1fr 9fr;
+  box-sizing: border-box;
+  min-height: 100vh;
+  background-color: $base-color;
+  color: $text-color;
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 9fr;
+    grid-template-rows: 100px 1fr;
+    height: 100vh;
+  }
+
+  .scrollable-container {
+    overflow: auto;
+  }
+  
+  .background-secondary {
+    background-color: $secondary-color;
+  }
 }

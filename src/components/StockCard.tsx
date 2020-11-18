@@ -2,80 +2,60 @@ import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 import { fetchStockPrices, fetchStockProfile } from '../App';
 import '../styles/StockCard.scss'
+import { StockPriceChange } from './StockPriceChange';
 
 interface StockCardProps {
     ticker: string,
-    api: string,
     onRemoveStock: (ticker: string) => void
 }
 
-interface companyProfileConfig {
-    loaded: boolean,
-    value: {
-        [propName: string]: string
-    } | null,
-    error: Error | null
-}
-
-export const StockCard: React.FC<StockCardProps> = ({ ticker, api, onRemoveStock }) => {
-    
-    const [currentPrice, setCurrentPrice] = useState({loaded: false, value: null, error: null});
+export const StockCard: React.FC<StockCardProps> = ({ ticker, onRemoveStock }) => {
 
     const history = useHistory();
+    
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
+    const [stockProfile, setStockProfile] = useState<{ [propName: string]: string }>({});
+    const [stockPrices, setStockPrices] = useState<{ [propName: string]: number }>({})
 
     useEffect(() => {
-        fetchStockPrices(ticker)
-            .then(result => {
-                setCurrentPrice({
-                    loaded: true,
-                    value: result.c, // c - current price
-                    error: null
-                });
-            }, error => {
-                setCurrentPrice({
-                    loaded: true,
-                    value: null,
-                    error: error
-                });
-            })
-    }, []);
-
-    const [companyProfile, setCompanyProfile] = useState<companyProfileConfig>({loaded: false, value: null, error: null});
-
-    useEffect(() => {
-        fetchStockProfile(ticker)
-            .then(result => {
-                setCompanyProfile({
-                    loaded: true,
-                    value: result,
-                    error: null
+        Promise.all([fetchStockProfile(ticker), fetchStockPrices(ticker)])
+            .then(
+                results => {
+                    setStockProfile(results[0]);
+                    setStockPrices(results[1]);
+                    setIsLoaded(true)
+                },
+                error => {
+                    setError(error)
                 })
-                console.log(result);
-            }, error => {
-                setCompanyProfile({
-                    loaded: true,
-                    value: null,
-                    error: error
-                });
-            })
-    }, []);
+    }, [])
+
+    if (error) {
+        return <div>{error.message}</div>
+    }
+    
+    if (!isLoaded) {
+        return <div>Loading...</div>
+    }
 
     return (
-        <div className='StockCard' onClick={() => history.push(`/stock/${ticker}`)}>
-            <div className="big-ticker">{ticker}</div>
-            <div className="full-stock-name">
-                {companyProfile.error ? 'Error' :
-                    !companyProfile.loaded ? 'Loading...' :
-                        companyProfile.value !== null && `Company name: ${companyProfile.value.name}`
-                }
-            </div>
-            <div className="stock-price">
-                {currentPrice.error ? 'Error' :
-                    !currentPrice.loaded ? 'Loading...' :
-                        '$' + currentPrice.value
-                }
-            </div>
-            <button type='button' onClick={e => onRemoveStock(ticker)}>X</button>
+        <div 
+            className='StockCard' 
+            onClick={e => {
+                    if ((e.target as HTMLElement).tagName !== 'BUTTON') {
+                        history.push(`/stock/${ticker}`);
+                    }
+            }}>
+                <div className="big-ticker">{ticker}</div>
+                <div className="full-stock-name">
+                    {`Company name: ${stockProfile.name}`}
+                </div>
+                <div className="stock-price">
+                    {`$${stockPrices?.c}`}
+                    <StockPriceChange stockPrices={stockPrices} />
+                </div>
+                <button type='button' onClick={e => onRemoveStock(ticker)}>X</button>
         </div>
     )
 }

@@ -1,9 +1,11 @@
 {
   "name": "stocks-checklist",
+  "homepage": "https://asdasd-dev.github.io/asdasd-dev",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
     "@reduxjs/toolkit": "^1.4.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
@@ -14,6 +16,7 @@
     "@types/react-dom": "^16.9.9",
     "@types/react-redux": "^7.1.11",
     "@types/react-router-dom": "^5.1.6",
+    "gh-pages": "^3.1.0",
     "node-sass": "^4.14.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -23,6 +26,8 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

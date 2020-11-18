@@ -1,3 +1,5 @@
+@import 'variables';
+
 .StockCard {
     display: flex;
     justify-content: space-between;
@@ -6,17 +8,22 @@
     padding: 10px;
     height: 80px;
     transition: .5s;
+    background-color: $stock-card-color;
+    border-radius: 10px;
 
     & > div {
+        flex: 1;
         display: inline-block;
-    }
-
-    &:nth-child(2n) {
-        background: lightgrey;
     }
 
     &:hover {
         cursor: pointer;
         transform: scale(1.01);
+    }
+
+    .stock-price {
+        .StockPriceChange {
+            margin-left: 10px;
+        }
     }
 }

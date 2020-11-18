@@ -5,7 +5,7 @@
     
     .found-stocks {
         position: absolute;
-        background: lightslategray;
+        background: grey;
         padding: 20px;
         min-width: 300px;
         border-radius: 5px;
@@ -25,7 +25,8 @@
 
             &:hover {
                 cursor: pointer;
-                transform: scale(1.01);;
+                transform: scale(1.01);
+                transition: .5s;
             }
         }
     }

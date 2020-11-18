@@ -2,9 +2,16 @@
     margin: 20px;
 
     .price-section {
+
         .current-price {
             font-size: 36px;
             font-weight: 700;
+        }
+
+        .StockPriceChange {
+            font-size: 30px;
+            font-weight: 500;
+            margin-left: 10px;
         }
     }
 }

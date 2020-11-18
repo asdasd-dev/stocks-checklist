@@ -4,7 +4,6 @@ import { fetchSupportedStocksList } from '../App';
 import '../styles/SearchInput.scss'
 
  interface SearchInputProps {
-    api: string,
     onAddStock: (ticker: string) => void
  }
 
@@ -24,7 +23,7 @@ import '../styles/SearchInput.scss'
      }
 }
 
-export const SearchInput: React.FC<SearchInputProps> = ({ api, onAddStock }) => {
+export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
 
     const [searchValue, setSearchValue] = useState('');
     const [stocksList, setStocksList] = useState([]);
@@ -86,7 +85,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ api, onAddStock }) => 
                     setIsFocused(true);
                 }} 
                 onBlur={e => {
-                    setBlurTimeout(setTimeout(() => setIsFocused(false), 2000));
+                    setBlurTimeout(setTimeout(() => setIsFocused(false), 300));
                 }}
                 value={searchValue} 
                 onChange={e => setSearchValue(e.target.value)}/>
