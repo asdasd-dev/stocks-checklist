@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom';
+import { fetchStockPrices, fetchStockProfile } from '../App';
 import '../styles/StockCard.scss'
 
 interface StockCardProps {
     ticker: string,
-    api: string
+    api: string,
+    onRemoveStock: (ticker: string) => void
 }
 
 interface companyProfileConfig {
@@ -14,17 +17,18 @@ interface companyProfileConfig {
     error: Error | null
 }
 
-export const StockCard: React.FC<StockCardProps> = ({ ticker, api }) => {
+export const StockCard: React.FC<StockCardProps> = ({ ticker, api, onRemoveStock }) => {
     
     const [currentPrice, setCurrentPrice] = useState({loaded: false, value: null, error: null});
 
+    const history = useHistory();
+
     useEffect(() => {
-        fetch('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api)
-            .then(response => response.json())
+        fetchStockPrices(ticker)
             .then(result => {
                 setCurrentPrice({
                     loaded: true,
-                    value: result.c,
+                    value: result.c, // c - current price
                     error: null
                 });
             }, error => {
@@ -39,8 +43,7 @@ export const StockCard: React.FC<StockCardProps> = ({ ticker, api }) => {
     const [companyProfile, setCompanyProfile] = useState<companyProfileConfig>({loaded: false, value: null, error: null});
 
     useEffect(() => {
-        fetch('https://finnhub.io/api/v1/stock/profile2?symbol=' + ticker + '&token=' + api)
-            .then(response => response.json())
+        fetchStockProfile(ticker)
             .then(result => {
                 setCompanyProfile({
                     loaded: true,
@@ -58,7 +61,7 @@ export const StockCard: React.FC<StockCardProps> = ({ ticker, api }) => {
     }, []);
 
     return (
-        <div className='StockCard'>
+        <div className='StockCard' onClick={() => history.push(`/stock/${ticker}`)}>
             <div className="big-ticker">{ticker}</div>
             <div className="full-stock-name">
                 {companyProfile.error ? 'Error' :
@@ -72,6 +75,7 @@ export const StockCard: React.FC<StockCardProps> = ({ ticker, api }) => {
                         '$' + currentPrice.value
                 }
             </div>
+            <button type='button' onClick={e => onRemoveStock(ticker)}>X</button>
         </div>
     )
 }

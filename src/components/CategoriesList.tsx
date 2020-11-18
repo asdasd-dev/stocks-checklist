@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import '../styles/CategoriesList.scss'
 
 interface CategoriesListProps {
@@ -39,14 +39,13 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
                 {categories.map(
                     categoryName => 
                     <li key={categoryName}>
-                        <a 
-                            href="" 
+                        <Link 
+                            to={`/categories/${categoryName}`}
                             onClick={e => {
                                 onSelectCategory(categoryName);
-                                e.preventDefault();
                             }}>
                             {categoryName}
-                        </a>
+                        </Link>
                     </li>)}
             </ul>
             { isAddingCategory && <div className=''>

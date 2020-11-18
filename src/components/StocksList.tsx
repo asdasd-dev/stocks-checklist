@@ -1,18 +1,24 @@
 import React, { ReactComponentElement } from 'react'
-import { useParams } from 'react-router-dom'
+import { Redirect, useParams } from 'react-router-dom'
 import '../styles/StocksList.scss'
 import { StockCard } from './StockCard';
 
 interface StocksListProps { 
-    stocks: string[],
-    api: string
+    categoriesData: {[categoryName: string]: string[]},
+    api: string,
+    onRemoveStock: (ticker: string) => void
 }
 
-export const StocksList: React.FC<StocksListProps> = ({ stocks, api }) => {
-    let params = useParams();
+export const StocksList: React.FC<StocksListProps> = ({ categoriesData, api, onRemoveStock }) => {
+
+    let { categoryName } = useParams<{ categoryName: string }>();
+    
     return (
         <div className="StocksList">
-            {stocks.map(stock => <StockCard key={stock} ticker={stock} api={api} />)}
+            {categoriesData[categoryName] ? 
+                categoriesData[categoryName].map(stock => <StockCard onRemoveStock={onRemoveStock} key={stock} ticker={stock} api={api} />)
+                : <Redirect to='/noSuchCategory' /> 
+            }
         </div>
     )
 }

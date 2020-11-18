@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useHistory } from 'react-router-dom';
+import { fetchSupportedStocksList } from '../App';
 import '../styles/SearchInput.scss'
 
  interface SearchInputProps {
@@ -34,6 +36,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({ api, onAddStock }) => 
     const searchInput = useRef<HTMLInputElement>(null);
     const foundStocksDiv = useRef<HTMLDivElement>(null);
 
+    const history = useHistory();
+
     useEffect(() => {
         if (isStocksLoaded && searchValue != '') {
             let matchGenerator = generateStocksMatches(stocksList, new RegExp(`^${searchValue}`, 'i'))
@@ -51,8 +55,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ api, onAddStock }) => 
 
     const fetchStocks = () => {
         if(!isStocksLoaded) {
-            fetch('https://finnhub.io/api/v1/stock/symbol?exchange=US&token=' + api)
-                .then(response => response.json())
+            fetchSupportedStocksList()
                 .then(result => {
                     setStocksList(result);
                     setIsStocksLoaded(true)
@@ -90,7 +93,13 @@ export const SearchInput: React.FC<SearchInputProps> = ({ api, onAddStock }) => 
             {isFocused && foundStocks.length > 0 ?
                 <div className="found-stocks" style={foundStocksStyle}>
                     {foundStocks.map(stock => (
-                        <div key={stock.symbol}>
+                        <div 
+                            key={stock.symbol} 
+                            onClick={e => {
+                                if ((e.target as HTMLElement).tagName != 'BUTTON') {
+                                    history.push(`/stock/${stock.symbol}`)
+                                }
+                            }}>
                             <span>{stock.symbol}</span> 
                             <span className='found-stock-description'>{stock.description}</span> 
                             <button 
