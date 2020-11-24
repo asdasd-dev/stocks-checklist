@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SearchInput } from './components/SearchInput';
 import { Logo } from './components/Logo';
 import { CategoriesList } from './components/CategoriesList';
@@ -8,40 +8,35 @@ import './App.scss';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { StockFundamentals } from './components/StockFundamentals';
 
-let initialCategories = {
-  'favorites': [
-    'AAPL',
-    'TSLA',
-    'AMZN',
-    'NFLX',
-    'FB'
-  ]
-}
-
 const apiKey = 'sandbox_bup9l3f48v6sjkjisljg';
 
 function App() {
 
-  const [categoriesDataList, setCategoriesDataList] = useState<{[categoryName: string]: string[]}>(initialCategories);  
-  const [selectedCategoryName, setSelectedCategoryName] = useState<string>('favorites');
+  const params = useParams<{ categoryName: string }>();
 
-  const params = useParams();
+  const [categoriesDataList, setCategoriesDataList] = useState<{[categoryName: string]: string[]}>({});  
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
+
+  useEffect(() => {
+    fetchCategories();
+  }, [])
 
   const onAddCategory = (categoryName: string) => {
-    if (categoryName !== '' && !categoriesDataList[categoryName])
-      setCategoriesDataList({
-        ...categoriesDataList,
-        [categoryName]: []
-      })
+    fetch('http://localhost:8080/api/categories', {
+      method: 'POST',
+      credentials: 'include',
+      body: categoryName,
+    }).then(response => response)
+    .then(result => fetchCategories())
   }
 
   const onAddStock = (ticker: string) => {
-    if(!categoriesDataList[selectedCategoryName].includes(ticker)) {
-      setCategoriesDataList({
-        ...categoriesDataList,
-        [selectedCategoryName]: [...categoriesDataList[selectedCategoryName], ticker]
-      })
-    }
+    fetch('http://localhost:8080/api/categories/' + selectedCategoryName, {
+      method: 'POST',
+      credentials: 'include',
+      body: ticker,
+    }).then(response => response)
+    .then(result => fetchCategories())
   }
 
   const onRemoveStock = (ticker: string) => {
@@ -56,6 +51,17 @@ function App() {
     setSelectedCategoryName(category);
   }
 
+  const fetchCategories = () => {
+    fetch('http://localhost:8080/api/categories', {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(response => response.json())
+      .then(categories => {
+        setCategoriesDataList(categories);
+      })
+  }
+
   return (
     <div className="App">
       <div className="grid">
@@ -66,7 +72,6 @@ function App() {
           <CategoriesList 
             onAddCategory={onAddCategory} 
             categories={Object.keys(categoriesDataList)}
-            onSelectCategory={onSelectCategory}
             selectedCategory={selectedCategoryName}/>
         </div>
         <div className="scrollable-container background-secondary">
@@ -74,12 +79,12 @@ function App() {
             <Route path='/categories/:categoryName'>
               <StocksList 
                 categoriesData={categoriesDataList}
-                onRemoveStock={onRemoveStock}/>
+                onRemoveStock={onRemoveStock}
+                onSelectCategory={onSelectCategory}/>
             </Route>
             <Route path='/stock/:ticker'>
               <StockFundamentals />
             </Route>
-            <Redirect to='/categories/favorites' />
           </Switch>
         </div>
       </div>

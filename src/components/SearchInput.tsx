@@ -10,31 +10,23 @@ import '../styles/SearchInput.scss'
     onAddStock: (ticker: string) => void
  }
 
- function* generateStocksMatches(stocksList: supportedStockData[], regexp: RegExp) {
-     for (let i = 0; i < stocksList.length; i++) {
-         if (regexp.test(stocksList[i].symbol)) {
-             yield stocksList[i];
-         }
-     }
-}
-
 export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
 
     const history = useHistory();
 
     const searchInput = useRef<HTMLInputElement>(null);
-    const foundStocksDiv = useRef<HTMLDivElement>(null);
 
     const [searchValue, setSearchValue] = useState('');
-
     const { isLoaded: isSupportedStocksLoaded, supportedStocks } = useSupportedStocks();
-
     const [isFocused, setIsFocused] = useState(false);
     const [searchResults, setSearchResults] = useState<supportedStockData[]>([]);
 
     useEffect(() => {
-        console.log('effect when isLoaded = ', isSupportedStocksLoaded, 'and searchValue = ', searchValue);
-        if (isSupportedStocksLoaded && searchValue != '') {
+        if (isSupportedStocksLoaded) {
+            if (searchValue === '') {
+                setSearchResults([]);
+                return;
+            }
             let matchGenerator = generateStocksMatches(supportedStocks, new RegExp(`^${searchValue}`, 'i'))
             let matchesArray = [];
             while (matchesArray.length < 5) {
@@ -45,7 +37,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
             }
             setSearchResults(matchesArray as supportedStockData[]);
         }
-    }, [searchValue, isSupportedStocksLoaded])
+    }, [searchValue])
 
     
     const inputRect = searchInput.current?.getBoundingClientRect();
@@ -53,6 +45,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
         top: inputRect?.bottom as number + 3
     }
 
+    let blurTimeout: NodeJS.Timeout;
 
     return (
         <div className="SearchInput">
@@ -61,9 +54,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
                 ref={searchInput}
                 onFocus={e => {
                     setIsFocused(true);
+                    clearTimeout(blurTimeout);
                 }} 
                 onBlur={e => {
-                    setTimeout(() => setIsFocused(false), 300);
+                    blurTimeout = setTimeout(() => setIsFocused(false), 1000);
                 }}
                 value={searchValue} 
                 onChange={e => setSearchValue(e.target.value)}/>
@@ -82,9 +76,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
                             <button 
                                 type='button' 
                                 onClick={() => {
-                                    searchInput.current?.focus();
                                     onAddStock(stock.symbol);
-                                    console.log('clicked');
+                                    searchInput.current?.focus();
+                                    clearTimeout(blurTimeout);
                                 }}
                                 className='add-stock-btn'>Add to checklist</button>
                         </div>
@@ -94,4 +88,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
             }
         </div>
     )
+}
+
+function* generateStocksMatches(stocksList: supportedStockData[], regexp: RegExp) {
+    for (let i = 0; i < stocksList.length; i++) {
+        if (regexp.test(stocksList[i].symbol)) {
+            yield stocksList[i];
+        }
+    }
 }

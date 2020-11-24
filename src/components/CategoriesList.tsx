@@ -6,11 +6,10 @@ import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 interface CategoriesListProps {
     categories: string[],
     onAddCategory: (categoryName: string) => void,
-    onSelectCategory: (category: string) => void,
     selectedCategory: string
 }
 
-export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAddCategory, onSelectCategory, selectedCategory }) => {
+export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAddCategory, selectedCategory }) => {
 
     const [isAddingCategory, setIsAddingCategory] = useState(false);
     const [newCategoryInputValue, setNewCategoryInputValue] = useState('');
@@ -50,7 +49,6 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
                         style={categoryName === selectedCategory ? {backgroundColor: 'rgba(0, 0, 0, .25)'} : {}}
                         onClick={
                             e => {
-                                onSelectCategory(categoryName);
                                 history.push(`/categories/${categoryName}`)
                             }
                         }>
