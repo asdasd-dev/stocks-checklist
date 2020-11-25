@@ -2,14 +2,21 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import '../styles/CategoriesList.scss'
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import { IconButton, Input } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import AddIcon from '@material-ui/icons/Add';
+import TextField from '@material-ui/core/TextField';
+
+
 
 interface CategoriesListProps {
     categories: string[],
     onAddCategory: (categoryName: string) => void,
+    onRemoveCategory: (categoryName: string) => void,
     selectedCategory: string
 }
 
-export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAddCategory, selectedCategory }) => {
+export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAddCategory, onRemoveCategory, selectedCategory }) => {
 
     const [isAddingCategory, setIsAddingCategory] = useState(false);
     const [newCategoryInputValue, setNewCategoryInputValue] = useState('');
@@ -29,17 +36,14 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
         setIsAddingCategory(!isAddingCategory);
     } 
 
-    console.log(selectedCategory)
-
     return (
         <div className='CategoriesList'>
-            <div className='category-header'>Categories 
-                <button 
-                    disabled={isAddingCategory} 
-                    className='add-category-btn' 
-                    onClick={toggleIsAddingCategory}>
-                    +
-                </button>
+            <div className='category-header'><span>Categories</span>
+                <IconButton size='small' color='primary'  className='add-category-btn' type="button" 
+                    onClick={toggleIsAddingCategory}
+                    disabled={isAddingCategory}>
+                        <AddIcon />
+                </IconButton>
             </div>
             {categories.map(
                 categoryName => 
@@ -49,15 +53,22 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
                         style={categoryName === selectedCategory ? {backgroundColor: 'rgba(0, 0, 0, .25)'} : {}}
                         onClick={
                             e => {
-                                history.push(`/categories/${categoryName}`)
+                                console.log((e.target as HTMLElement).closest('button'));
+                                if (!(e.target as HTMLElement).closest('button')) {
+                                    history.push(`/categories/${categoryName}`)
+                                } 
                             }
                         }>
                             <FolderOpenIcon /> 
                             <span> {categoryName}</span>
+                            <IconButton size='small' color='secondary' className="remove-btn" type="button" onClick={() => onRemoveCategory(categoryName)}>
+                                <CloseIcon />
+                            </IconButton>
                     </div>
             )}
-            { isAddingCategory && <div className=''>
-                    <input 
+            { isAddingCategory && 
+                <div className='add-category-div'>
+                    <input
                         onChange={e => setNewCategoryInputValue(e.target.value)} 
                         onBlur={() => {
                             onAddCategory(newCategoryInputValue);
@@ -71,8 +82,10 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
                         }}
                         ref={newCategoryInput} 
                         value={newCategoryInputValue}
-                        type='text'></input>
-                </div>}
+                        type='text'>
+                    </input>
+                </div>
+            }
         </div>
     );
 }

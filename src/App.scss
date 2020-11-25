@@ -1,7 +1,11 @@
 @import './styles/variables';
 
 .App {
-  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+  
   min-height: 100vh;
   background-color: $base-color;
   color: $text-color;

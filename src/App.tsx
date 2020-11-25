@@ -10,6 +10,8 @@ import { StockFundamentals } from './components/StockFundamentals';
 
 const apiKey = 'sandbox_bup9l3f48v6sjkjisljg';
 
+const avAPI = '0JXX31S6SB3HSQAL'
+
 function App() {
 
   const params = useParams<{ categoryName: string }>();
@@ -26,8 +28,15 @@ function App() {
       method: 'POST',
       credentials: 'include',
       body: categoryName,
-    }).then(response => response)
-    .then(result => fetchCategories())
+    }).then(response => response.ok && fetchCategories())
+  }
+
+  const onRemoveCategory = (categoryName: string) => {
+    fetch('http://localhost:8080/api/categories', {
+      method: 'DELETE',
+      credentials: 'include',
+      body: categoryName,
+    }).then(response => response.ok && fetchCategories())
   }
 
   const onAddStock = (ticker: string) => {
@@ -35,16 +44,15 @@ function App() {
       method: 'POST',
       credentials: 'include',
       body: ticker,
-    }).then(response => response)
-    .then(result => fetchCategories())
+    }).then(response => response.ok && fetchCategories())
   }
 
   const onRemoveStock = (ticker: string) => {
-    let newCategoriesDataList = {
-      ...categoriesDataList
-    }
-    newCategoriesDataList[selectedCategoryName] = newCategoriesDataList[selectedCategoryName].filter(elem => elem != ticker)
-    setCategoriesDataList(newCategoriesDataList);
+    fetch('http://localhost:8080/api/categories/' + selectedCategoryName, {
+      method: 'DELETE',
+      credentials: 'include',
+      body: ticker,
+    }).then(response => response.ok && fetchCategories())
   }
 
   const onSelectCategory = (category: string) => {
@@ -70,7 +78,8 @@ function App() {
           onAddStock={onAddStock}/>
         <div className="scrollable-container">
           <CategoriesList 
-            onAddCategory={onAddCategory} 
+            onAddCategory={onAddCategory}
+            onRemoveCategory={onRemoveCategory}
             categories={Object.keys(categoriesDataList)}
             selectedCategory={selectedCategoryName}/>
         </div>

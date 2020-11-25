@@ -50,8 +50,9 @@ app.use((request, response, next) => { // check/set token
     }
 });
 
-app.get("/api/categories", function (request, response) {
 
+// get categories list
+app.get("/api/categories", function (request, response) {
     collection.findOne({ _id: ObjectId(request.token) }, function (error, categories) {
         console.log(request.cookies)
         if (error) return console.log(error.message);
@@ -60,19 +61,39 @@ app.get("/api/categories", function (request, response) {
     })
 })
 
+// add category
 app.post("/api/categories", function (request, response) {
     collection.findOneAndUpdate( {_id: ObjectId(request.token) }, { $set: { [request.body]: []} }, { returnOriginal: false }, function (err, result) { 
         console.log(result);
-        response.send(result.ops);
+        response.send();
     })
 })
 
-app.post("/api/categories/:categoryName", function (request, response) {
-    collection.findOneAndUpdate( {_id: ObjectId(request.token) }, { $addToSet: { [request.params.categoryName]: request.body } }, { returnOriginal: false }, function (err, result) { 
+// remove category
+app.delete("/api/categories", function (request, response) {
+    collection.findOneAndUpdate( {_id: ObjectId(request.token) }, { $unset: { [request.body]: 1 } }, { returnOriginal: false }, function (err, result) { 
         console.log(result);
-        response.send(result.ops);
+        response.send();
     })
 })
+
+// add stock to category
+app.post("/api/categories/:categoryName", function (request, response) { 
+    collection.findOneAndUpdate( {_id: ObjectId(request.token) }, { $addToSet: { [request.params.categoryName]: request.body } }, { returnOriginal: false }, function (err, result) { 
+        console.log(result);
+        response.send();
+    })
+})
+
+// remove stock from category
+app.delete("/api/categories/:categoryName", function (request, response) {
+    collection.findOneAndUpdate( { _id: ObjectId(request.token) },  { $pull: { [request.params.categoryName]: request.body } }, { returnOriginal: false }, function (err, result) {
+        console.log(result);
+        response.send();
+    })
+})
+
+
 
 process.on("SIGINT", () => {
     dbClient.close();

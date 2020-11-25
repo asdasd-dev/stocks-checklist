@@ -4,6 +4,8 @@ import { useHistory } from 'react-router-dom';
 import { fetchSupportedStocksList } from '../App';
 import { useSupportedStocks } from '../hooks/useSupportedStocks';
 import { supportedStockData } from '../hooks/useSupportedStocks'
+import { IconButton } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
 import '../styles/SearchInput.scss'
 
  interface SearchInputProps {
@@ -37,7 +39,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
             }
             setSearchResults(matchesArray as supportedStockData[]);
         }
-    }, [searchValue])
+    }, [searchValue, isSupportedStocksLoaded])
 
     
     const inputRect = searchInput.current?.getBoundingClientRect();
@@ -67,20 +69,20 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
                         <div 
                             key={stock.symbol} 
                             onClick={e => {
-                                if ((e.target as HTMLElement).tagName != 'BUTTON') {
+                                if (!(e.target as HTMLElement).closest('button')) {
                                     history.push(`/stock/${stock.symbol}`)
                                 }
                             }}>
                             <span>{stock.symbol}</span> 
                             <span className='found-stock-description'>{stock.description}</span> 
-                            <button 
-                                type='button' 
+                            <IconButton size='small' color='primary'  className='add-stock-btn' type="button" 
                                 onClick={() => {
                                     onAddStock(stock.symbol);
                                     searchInput.current?.focus();
                                     clearTimeout(blurTimeout);
-                                }}
-                                className='add-stock-btn'>Add to checklist</button>
+                                }}>
+                                    <AddIcon />
+                            </IconButton>
                         </div>
                     ))}
                 </div>
