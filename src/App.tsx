@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { Route, Switch } from 'react-router-dom';
+
 import { SearchInput } from './components/SearchInput';
 import { Logo } from './components/Logo';
 import { CategoriesList } from './components/CategoriesList';
 import { StocksList } from './components/StocksList';
+import { StockFundamentals } from './components/StockFundamentals';
 
 import './App.scss';
-import { Redirect, Route, Switch, useParams } from 'react-router-dom';
-import { StockFundamentals } from './components/StockFundamentals';
 
 const apiKey = 'sandbox_bup9l3f48v6sjkjisljg';
 
-const avAPI = '0JXX31S6SB3HSQAL'
-
 function App() {
-
-  const params = useParams<{ categoryName: string }>();
 
   const [categoriesDataList, setCategoriesDataList] = useState<{[categoryName: string]: string[]}>({});  
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
@@ -23,7 +20,7 @@ function App() {
     fetchCategories();
   }, [])
 
-  const onAddCategory = (categoryName: string) => {
+  function onAddCategory (categoryName: string) {
     fetch('http://localhost:8080/api/categories', {
       method: 'POST',
       credentials: 'include',
@@ -31,7 +28,7 @@ function App() {
     }).then(response => response.ok && fetchCategories())
   }
 
-  const onRemoveCategory = (categoryName: string) => {
+  function onRemoveCategory (categoryName: string) {
     fetch('http://localhost:8080/api/categories', {
       method: 'DELETE',
       credentials: 'include',
@@ -39,7 +36,7 @@ function App() {
     }).then(response => response.ok && fetchCategories())
   }
 
-  const onAddStock = (ticker: string) => {
+  function onAddStock (ticker: string) {
     fetch('http://localhost:8080/api/categories/' + selectedCategoryName, {
       method: 'POST',
       credentials: 'include',
@@ -47,7 +44,7 @@ function App() {
     }).then(response => response.ok && fetchCategories())
   }
 
-  const onRemoveStock = (ticker: string) => {
+  function onRemoveStock (ticker: string) {
     fetch('http://localhost:8080/api/categories/' + selectedCategoryName, {
       method: 'DELETE',
       credentials: 'include',
@@ -55,11 +52,11 @@ function App() {
     }).then(response => response.ok && fetchCategories())
   }
 
-  const onSelectCategory = (category: string) => {
+  function onSelectCategory (category: string) {
     setSelectedCategoryName(category);
   }
 
-  const fetchCategories = () => {
+  function fetchCategories() {
     fetch('http://localhost:8080/api/categories', {
       method: 'GET',
       credentials: 'include',

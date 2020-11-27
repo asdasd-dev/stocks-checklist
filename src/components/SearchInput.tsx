@@ -1,11 +1,9 @@
-import { CircularProgress } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom';
-import { fetchSupportedStocksList } from '../App';
-import { useSupportedStocks } from '../hooks/useSupportedStocks';
+import { useHistory } from 'react-router-dom'
+import { useSupportedStocks } from '../hooks/useSupportedStocks'
 import { supportedStockData } from '../hooks/useSupportedStocks'
-import { IconButton } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import { IconButton } from '@material-ui/core'
+import AddIcon from '@material-ui/icons/Add'
 import '../styles/SearchInput.scss'
 
  interface SearchInputProps {
@@ -17,9 +15,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
     const history = useHistory();
 
     const searchInput = useRef<HTMLInputElement>(null);
+    const blurTimeoutRef = useRef<NodeJS.Timeout>();
+
+    const { isLoaded: isSupportedStocksLoaded, supportedStocks } = useSupportedStocks();
 
     const [searchValue, setSearchValue] = useState('');
-    const { isLoaded: isSupportedStocksLoaded, supportedStocks } = useSupportedStocks();
     const [isFocused, setIsFocused] = useState(false);
     const [searchResults, setSearchResults] = useState<supportedStockData[]>([]);
 
@@ -40,14 +40,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
             setSearchResults(matchesArray as supportedStockData[]);
         }
     }, [searchValue, isSupportedStocksLoaded])
-
     
     const inputRect = searchInput.current?.getBoundingClientRect();
     const foundStocksStyle: React.CSSProperties = {
         top: inputRect?.bottom as number + 3
     }
-
-    let blurTimeout: NodeJS.Timeout;
 
     return (
         <div className="SearchInput">
@@ -56,10 +53,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
                 ref={searchInput}
                 onFocus={e => {
                     setIsFocused(true);
-                    clearTimeout(blurTimeout);
+                    if (blurTimeoutRef.current) {
+                        clearTimeout(blurTimeoutRef.current);
+                    }
                 }} 
                 onBlur={e => {
-                    blurTimeout = setTimeout(() => setIsFocused(false), 1000);
+                    blurTimeoutRef.current = setTimeout(() => setIsFocused(false), 1000);
                 }}
                 value={searchValue} 
                 onChange={e => setSearchValue(e.target.value)}/>
@@ -79,7 +78,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onAddStock }) => {
                                 onClick={() => {
                                     onAddStock(stock.symbol);
                                     searchInput.current?.focus();
-                                    clearTimeout(blurTimeout);
                                 }}>
                                     <AddIcon />
                             </IconButton>

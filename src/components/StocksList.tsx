@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { Redirect, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import '../styles/StocksList.scss'
-import { StockCard } from './StockCard';
+import { StockCard } from './StockCard'
 
 interface StocksListProps { 
     categoriesData: {[categoryName: string]: string[]},

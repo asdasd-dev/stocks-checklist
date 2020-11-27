@@ -1,12 +1,15 @@
-import { CircularProgress } from '@material-ui/core';
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useHistory } from 'react-router-dom';
-import { fetchStockPrices, fetchStockProfile } from '../App';
-import { useStockData } from '../hooks/useStockData';
-import '../styles/StockCard.scss'
-import { StockPriceChange } from './StockPriceChange';
+
+import { CircularProgress } from '@material-ui/core';
 import { IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
+
+import { useStockData } from '../hooks/useStockData';
+import { StockPriceChange } from './StockPriceChange';
+
+import '../styles/StockCard.scss'
+
 
 interface StockCardProps {
     ticker: string,

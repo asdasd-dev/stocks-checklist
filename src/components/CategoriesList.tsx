@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useHistory, useParams } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+
+import FolderOpenIcon from '@material-ui/icons/FolderOpen'
+import { IconButton } from '@material-ui/core'
+import CloseIcon from '@material-ui/icons/Close'
+import AddIcon from '@material-ui/icons/Add'
+
 import '../styles/CategoriesList.scss'
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
-import { IconButton, Input } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
-import AddIcon from '@material-ui/icons/Add';
-import TextField from '@material-ui/core/TextField';
-
-
 
 interface CategoriesListProps {
     categories: string[],
@@ -24,7 +23,6 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
     const newCategoryInput = useRef<HTMLInputElement>(null);
 
     const history = useHistory();
-    const params = useParams<{categoryName: string}>();
 
     useEffect(() => {
         if (isAddingCategory && newCategoryInput && newCategoryInput.current) {
@@ -53,7 +51,6 @@ export const CategoriesList: React.FC<CategoriesListProps> = ({ categories, onAd
                         style={categoryName === selectedCategory ? {backgroundColor: 'rgba(0, 0, 0, .25)'} : {}}
                         onClick={
                             e => {
-                                console.log((e.target as HTMLElement).closest('button'));
                                 if (!(e.target as HTMLElement).closest('button')) {
                                     history.push(`/categories/${categoryName}`)
                                 } 

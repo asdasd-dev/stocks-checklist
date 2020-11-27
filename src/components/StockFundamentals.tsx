@@ -1,11 +1,10 @@
 import { CircularProgress } from '@material-ui/core';
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useParams } from 'react-router-dom'
-import { fetchStockPrices, fetchStockProfile } from '../App';
 import { useStockData } from '../hooks/useStockData';
+import { StockPriceChange } from './StockPriceChange';
 
 import '../styles/StockFundamentals.scss'
-import { StockPriceChange } from './StockPriceChange';
 
 export const StockFundamentals: React.FC = () => {
 

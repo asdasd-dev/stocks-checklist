@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchStockPrices, fetchStockProfile } from '../App';
+import { fetchStockPrices, fetchStockProfile } from '../App'
 
 export function useStockData(ticker: string, dependencies: React.DependencyList = []) {
 
@@ -9,17 +9,24 @@ export function useStockData(ticker: string, dependencies: React.DependencyList 
     const [stockPrices, setStockPrices] = useState<{ [propName: string]: number }>({})
 
     useEffect(() => {
-        setIsLoaded(false);
+        let didCancel = false;
         Promise.all([fetchStockProfile(ticker), fetchStockPrices(ticker)])
             .then(
                 results => {
-                    setStockProfile(results[0]);
-                    setStockPrices(results[1]);
-                    setIsLoaded(true)
+                    if (!didCancel) {
+                        setStockProfile(results[0]);
+                        setStockPrices(results[1]);
+                        setIsLoaded(true)
+                    }
                 },
                 error => {
-                    setError(error)
+                    if (!didCancel) {
+                        setError(error)
+                    }
                 })
+        return () => {
+            didCancel = true;
+        }
     }, dependencies)
     
     return { isLoaded, stockProfile, stockPrices, error }
